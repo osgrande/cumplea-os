@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e94560">
+<title>Mis Cumpleaños</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--acc:#e94560;--acc2:#ffbe3c;--bg:#fff7f0;--card:#fff;--txt:#2b2230;--mut:#8a7f8e;--line:#f0e4dc}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:110px}
+header{background:var(--acc);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 20px 64px}
+header h1{margin:0;font-size:24px}
+header p{margin:4px 0 0;opacity:.9;font-size:14px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+.hero{background:var(--card);border-radius:20px;padding:20px;margin-top:-46px;box-shadow:0 6px 24px rgba(233,69,96,.18);text-align:center}
+.hero .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.hero .who{font-size:26px;font-weight:800;margin:6px 0 2px}
+.hero .when{font-size:15px;color:var(--mut)}
+.hero .count{display:inline-block;margin-top:12px;background:var(--acc);color:#fff;font-weight:800;border-radius:999px;padding:8px 18px;font-size:17px}
+.hero.today{background:linear-gradient(135deg,#ffe0e6,#fff3d6)}
+.hero.today .count{background:#2b2230}
+.notice{margin-top:14px;background:#fff3d6;border:1px solid #ffe2a0;border-radius:14px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.notice button{flex:none}
+h2{font-size:15px;color:var(--mut);margin:24px 4px 8px;text-transform:uppercase;letter-spacing:.06em}
+.item{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;border:1px solid var(--line)}
+.item.is-today{border-color:var(--acc);background:#fff0f2}
+.date{width:52px;flex:none;text-align:center;background:#fdeef0;border-radius:12px;padding:6px 0}
+.date b{display:block;font-size:20px;color:var(--acc);line-height:1.1}
+.date span{font-size:11px;text-transform:uppercase;color:var(--mut);font-weight:700}
+.info{flex:1;min-width:0}
+.info .n{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.info .d{font-size:13px;color:var(--mut)}
+.acts{display:flex;gap:4px}
+.icon-btn{border:0;background:#f6efe9;border-radius:10px;width:38px;height:38px;font-size:17px;cursor:pointer;display:grid;place-items:center;text-decoration:none;color:inherit}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+button.primary{background:var(--acc);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:700;font-size:15px;cursor:pointer}
+button.ghost{background:transparent;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px;cursor:pointer;color:var(--txt)}
+.fab{position:fixed;right:20px;bottom:calc(24px + env(safe-area-inset-bottom));width:62px;height:62px;border-radius:50%;background:var(--acc);color:#fff;font-size:34px;border:0;box-shadow:0 8px 20px rgba(233,69,96,.4);cursor:pointer}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.sheet-bg.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 14px}
+label{display:block;font-size:13px;color:var(--mut);font-weight:600;margin:10px 0 4px}
+input,select,textarea{width:100%;font:inherit;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fffdfb;color:var(--txt)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.sheet .btns{display:flex;gap:8px;margin-top:18px}.sheet .btns>*{flex:1}
+.err{color:var(--acc);font-size:13px;min-height:18px;margin-top:6px}
+details{margin-top:26px;color:var(--mut);font-size:14px}
+details summary{cursor:pointer;font-weight:600}
+details .box{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#2b2230;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>🎂 Mis Cumpleaños</h1><p id="hoy"></p></div></header>
+
+<div class="wrap">
+  <section class="hero" id="hero"></section>
+  <div id="notice"></div>
+  <h2>Todos los cumpleaños</h2>
+  <div id="list"></div>
+
+  <details>
+    <summary>Copia de seguridad</summary>
+    <div class="box">
+      <p style="margin:0">Los cumpleaños se guardan solo en este móvil. Copia este texto y guárdalo (por ejemplo, envíatelo por email) para no perderlos.</p>
+      <button class="ghost" id="btnExport">📋 Copiar copia de seguridad</button>
+      <textarea id="importTxt" rows="3" placeholder="Pega aquí una copia de seguridad para restaurarla"></textarea>
+      <button class="ghost" id="btnImport">⤴️ Restaurar desde el texto pegado</button>
+    </div>
+  </details>
+</div>
+
+<button class="fab" id="fab" aria-label="Añadir cumpleaños">+</button>
+
+<div class="sheet-bg" id="sheetBg">
+  <form class="sheet" id="form">
+    <h3 id="formTitle">Nuevo cumpleaños</h3>
+    <label for="fName">Nombre</label>
+    <input id="fName" autocomplete="off" placeholder="Ej.: Lucía" maxlength="60">
+    <div class="row">
+      <div><label for="fDay">Día</label><select id="fDay"></select></div>
+      <div style="flex:1.6"><label for="fMonth">Mes</label><select id="fMonth"></select></div>
+    </div>
+    <label for="fYear">Año de nacimiento (opcional, para saber cuántos cumple)</label>
+    <input id="fYear" type="number" inputmode="numeric" min="1900" placeholder="Ej.: 1990">
+    <div class="err" id="fErr"></div>
+    <div class="btns">
+      <button type="button" class="ghost" id="fCancel">Cancelar</button>
+      <button type="submit" class="primary">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="db.js"></script>
+<script>
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const MES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+let birthdays = [];
+let editingId = null;
+let swReg = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2000); }
+
+function whenText(n){ return n===0 ? "¡Es hoy!" : n===1 ? "Mañana" : `Faltan ${n} días`; }
+function fmtDate(b){ return `${b.day} de ${MESES[b.month-1]}`; }
+
+function sorted(){ return [...birthdays].sort((a,b)=>daysUntil(a)-daysUntil(b) || a.name.localeCompare(b.name,"es")); }
+
+// Enlace para crear un evento anual en Google Calendar (aviso fiable aunque la app esté cerrada)
+function calendarLink(b){
+  const d = nextOccurrence(b), e = new Date(d); e.setDate(e.getDate()+1);
+  const f = (x)=> `${x.getFullYear()}${String(x.getMonth()+1).padStart(2,"0")}${String(x.getDate()).padStart(2,"0")}`;
+  const p = new URLSearchParams({action:"TEMPLATE", text:`🎂 Cumpleaños de ${b.name}`, dates:`${f(d)}/${f(e)}`, recur:"RRULE:FREQ=YEARLY", details:"Creado desde Mis Cumpleaños"});
+  return "https://calendar.google.com/calendar/render?" + p.toString();
+}
+
+function render(){
+  const now = new Date();
+  const ds = now.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  $("hoy").textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
+  const list = sorted();
+  const hero = $("hero");
+  if (!list.length){
+    hero.className="hero";
+    hero.innerHTML = `<div class="lbl">Próximo cumpleaños</div><div class="who">Aún no hay ninguno</div><div class="when">Pulsa <b>+</b> para añadir el primero</div>`;
+  } else {
+    const n = daysUntil(list[0]);
+    const same = list.filter(b=>daysUntil(b)===n);
+    const names = same.map(b=>{ const a=ageTurning(b); return esc(b.name)+(a&&same.length>1?` <span style="font-weight:500;color:var(--mut)">(${a})</span>`:""); }).join(" y ");
+    hero.className = "hero" + (n===0?" today":"");
+    hero.innerHTML = `<div class="lbl">${n===0?"🎉 Hoy es el cumpleaños de":"Próximo cumpleaños"}</div>
+      <div class="who">${names}</div>
+      <div class="when">${fmtDate(same[0])}${same.length===1&&ageTurning(same[0])?` · cumple ${ageTurning(same[0])} años`:""}</div>
+      <div class="count">${whenText(n)}</div>`;
+  }
+  $("list").innerHTML = list.length ? list.map(b=>{
+    const n = daysUntil(b), a = ageTurning(b);
+    return `<div class="item ${n===0?"is-today":""}">
+      <div class="date"><b>${b.day}</b><span>${MES_C[b.month-1]}</span></div>
+      <div class="info"><div class="n">${esc(b.name)}</div><div class="d">${whenText(n)}${a?` · cumple ${a}`:""}</div></div>
+      <div class="acts">
+        <a class="icon-btn" href="${calendarLink(b)}" target="_blank" rel="noopener" title="Añadir a Google Calendar">📅</a>
+        <button class="icon-btn" data-edit="${b.id}" title="Editar">✏️</button>
+        <button class="icon-btn" data-del="${b.id}" title="Borrar">🗑️</button>
+      </div></div>`;
+  }).join("") : `<div class="empty">No hay cumpleaños guardados.</div>`;
+  renderNotice();
+}
+
+function renderNotice(){
+  const el = $("notice");
+  if (!("Notification" in window)) { el.innerHTML = ""; return; }
+  if (Notification.permission === "default") {
+    el.innerHTML = `<div class="notice"><span>🔔 Activa los avisos para que te salga una notificación el día del cumpleaños.</span><button class="primary" id="btnPerm">Activar</button></div>`;
+    $("btnPerm").onclick = askPermission;
+  } else if (Notification.permission === "denied") {
+    el.innerHTML = `<div class="notice"><span>🔕 Los avisos están bloqueados. Actívalos en Ajustes › Aplicaciones › Chrome (o Mis Cumpleaños) › Notificaciones.</span></div>`;
+  } else el.innerHTML = "";
+}
+
+async function askPermission(){
+  const p = await Notification.requestPermission();
+  renderNotice();
+  if (p === "granted") { await setupBackground(); await checkToday(); toast("Avisos activados"); }
+}
+
+async function setupBackground(){
+  if (!swReg || !("periodicSync" in swReg)) return;
+  try {
+    const st = await navigator.permissions.query({name:"periodic-background-sync"});
+    if (st.state === "granted") await swReg.periodicSync.register("check-birthdays", {minInterval: 12*60*60*1000});
+  } catch(e) {}
+}
+async function checkToday(){ if (swReg) { try { await notifyTodayIfNeeded(swReg); } catch(e){} } }
+
+async function save(){ await dbSet("birthdays", birthdays); render(); }
+
+// ---- Formulario ----
+function fillSelects(){
+  $("fMonth").innerHTML = MESES.map((m,i)=>`<option value="${i+1}">${m[0].toUpperCase()+m.slice(1)}</option>`).join("");
+  updateDays();
+}
+function updateDays(){
+  const m = +$("fMonth").value || 1, max = [31,29,31,30,31,30,31,31,30,31,30,31][m-1];
+  const cur = +$("fDay").value || 1;
+  $("fDay").innerHTML = Array.from({length:max},(_,i)=>`<option>${i+1}</option>`).join("");
+  $("fDay").value = Math.min(cur,max);
+}
+function openForm(b){
+  editingId = b ? b.id : null;
+  $("formTitle").textContent = b ? "Editar cumpleaños" : "Nuevo cumpleaños";
+  const t = new Date();
+  $("fName").value = b ? b.name : "";
+  $("fMonth").value = b ? b.month : t.getMonth()+1; updateDays();
+  $("fDay").value = b ? b.day : t.getDate();
+  $("fYear").value = b && b.year ? b.year : "";
+  $("fErr").textContent = "";
+  $("sheetBg").classList.add("open");
+  setTimeout(()=>$("fName").focus(),50);
+}
+function closeForm(){ $("sheetBg").classList.remove("open"); }
+
+$("fMonth").onchange = updateDays;
+$("fab").onclick = () => openForm(null);
+$("fCancel").onclick = closeForm;
+$("sheetBg").onclick = (e) => { if (e.target.id === "sheetBg") closeForm(); };
+$("form").onsubmit = async (e) => {
+  e.preventDefault();
+  const name = $("fName").value.trim(), day = +$("fDay").value, month = +$("fMonth").value;
+  const yRaw = $("fYear").value.trim(), year = yRaw ? +yRaw : null;
+  if (!name) { $("fErr").textContent = "Escribe un nombre."; return; }
+  if (year !== null && (year < 1900 || year > new Date().getFullYear())) { $("fErr").textContent = "El año no es válido."; return; }
+  if (year && month===2 && day===29 && !isLeap(year)) { $("fErr").textContent = `${year} no fue bisiesto: no tuvo 29 de febrero.`; return; }
+  if (editingId) Object.assign(birthdays.find(b=>b.id===editingId), {name,day,month,year});
+  else birthdays.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name, day, month, year});
+  await save(); closeForm(); toast("Guardado");
+  if (Notification?.permission === "granted") checkToday();
+};
+
+$("list").onclick = async (e) => {
+  const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
+  if (ed) openForm(birthdays.find(b=>b.id===ed.dataset.edit));
+  if (del) {
+    const b = birthdays.find(x=>x.id===del.dataset.del);
+    if (confirm(`¿Borrar el cumpleaños de ${b.name}?`)) { birthdays = birthdays.filter(x=>x.id!==b.id); await save(); toast("Borrado"); }
+  }
+};
+
+// ---- Copia de seguridad ----
+$("btnExport").onclick = async () => {
+  const txt = JSON.stringify(birthdays.map(({name,day,month,year})=>({name,day,month,year})));
+  try { await navigator.clipboard.writeText(txt); toast("Copia copiada al portapapeles"); }
+  catch(e){ $("importTxt").value = txt; $("importTxt").select(); toast("Selecciona y copia el texto"); }
+};
+$("btnImport").onclick = async () => {
+  try {
+    const arr = JSON.parse($("importTxt").value);
+    if (!Array.isArray(arr)) throw 0;
+    let added = 0;
+    for (const x of arr) {
+      if (!x || !x.name || !(x.day>=1&&x.day<=31) || !(x.month>=1&&x.month<=12)) continue;
+      if (birthdays.some(b=>b.name===x.name&&b.day===x.day&&b.month===x.month)) continue;
+      birthdays.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name:String(x.name).slice(0,60), day:+x.day, month:+x.month, year:x.year?+x.year:null});
+      added++;
+    }
+    await save(); $("importTxt").value = ""; toast(`${added} cumpleaños restaurados`);
+  } catch(e) { toast("El texto no es una copia válida"); }
+};
+
+// ---- Inicio ----
+(async function init(){
+  fillSelects();
+  try { birthdays = await dbGet("birthdays", []); } catch(e) { birthdays = []; }
+  render();
+  if ("serviceWorker" in navigator) {
+    try { swReg = await navigator.serviceWorker.register("sw.js"); await navigator.serviceWorker.ready; swReg = await navigator.serviceWorker.getRegistration() || swReg; } catch(e) {}
+  }
+  if ("Notification" in window && Notification.permission === "granted") { await setupBackground(); await checkToday(); }
+  // Si la app queda abierta y cambia el día, se actualiza
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { render(); checkToday(); } });
+})();
+</script>
+</body>
+</html>
