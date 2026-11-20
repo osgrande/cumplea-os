@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#e94560">
 <title>Mis Cumpleaños</title>
 <link rel="manifest" href="manifest.json">
@@ -42,7 +42,7 @@ button.ghost{background:transparent;border:1px solid var(--line);border-radius:1
 .fab{position:fixed;right:20px;bottom:calc(24px + env(safe-area-inset-bottom));width:62px;height:62px;border-radius:50%;background:var(--acc);color:#fff;font-size:34px;border:0;box-shadow:0 8px 20px rgba(233,69,96,.4);cursor:pointer}
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:10}
 .sheet-bg.open{display:flex}
-.sheet{background:var(--card);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:88vh;max-height:88dvh;overflow-y:auto;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
 .sheet h3{margin:0 0 14px}
 label{display:block;font-size:13px;color:var(--mut);font-weight:600;margin:10px 0 4px}
 input,select,textarea{width:100%;font:inherit;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fffdfb;color:var(--txt)}
@@ -218,9 +218,10 @@ $("form").onsubmit = async (e) => {
   e.preventDefault();
   const name = $("fName").value.trim(), day = +$("fDay").value, month = +$("fMonth").value;
   const yRaw = $("fYear").value.trim(), year = yRaw ? +yRaw : null;
-  if (!name) { $("fErr").textContent = "Escribe un nombre."; return; }
-  if (year !== null && (year < 1900 || year > new Date().getFullYear())) { $("fErr").textContent = "El año no es válido."; return; }
-  if (year && month===2 && day===29 && !isLeap(year)) { $("fErr").textContent = `${year} no fue bisiesto: no tuvo 29 de febrero.`; return; }
+  const showErr = (t) => { $("fErr").textContent = t; $("fErr").scrollIntoView({block:"center"}); };
+  if (!name) { showErr("Escribe un nombre."); return; }
+  if (year !== null && (year < 1900 || year > new Date().getFullYear())) { showErr("El año debe tener 4 cifras, entre 1900 y el año actual (ej.: 1965)."); return; }
+  if (year && month===2 && day===29 && !isLeap(year)) { showErr(`${year} no fue bisiesto: no tuvo 29 de febrero.`); return; }
   if (editingId) Object.assign(birthdays.find(b=>b.id===editingId), {name,day,month,year});
   else birthdays.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name, day, month, year});
   await save(); closeForm(); toast("Guardado");
